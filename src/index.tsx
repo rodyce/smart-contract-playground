@@ -1,4 +1,5 @@
+import BlockchainCounter from "BlockchainCounter";
 import { render } from "react-dom";
-import App from "App";
+import SimpleCounter from "SimpleCounter";
 
-render(<App />, document.getElementById("root"));
+render(<BlockchainCounter />, document.getElementById("root"));

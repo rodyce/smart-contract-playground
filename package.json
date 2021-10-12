@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/rodyce/smart-contract-playground#readme",
   "dependencies": {
+    "@openzeppelin/contracts": "^4.3.2",
     "ethers": "^5.4.7",
     "process": "^0.11.10",
     "react": "^17.0.2",
