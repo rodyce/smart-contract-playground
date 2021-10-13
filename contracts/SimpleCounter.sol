@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.25 <0.7.0;
+pragma solidity >=0.4.25 <0.9.0;
 
 contract SimpleCounter {
     uint256 counterValue;
 
     event CounterUpdated(address indexed _from, uint256 value);
 
-    constructor() public {
+    constructor() {
         counterValue = 0;
     }
 
