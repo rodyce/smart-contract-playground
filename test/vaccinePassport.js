@@ -23,6 +23,7 @@ contract("VaccinePassport", (accounts) => {
     const vaccinePassportInstance = await VaccinePassport.deployed();
 
     const expectedInitials = "RCE414";
+    const expectedVaccineLot = 10;
 
     const owner = accounts[0];
     const issuer = accounts[1];
@@ -37,7 +38,7 @@ contract("VaccinePassport", (accounts) => {
       123,
       "photoUrl",
       1,
-      10,
+      expectedVaccineLot,
       {
         from: issuer,
       }
@@ -48,8 +49,13 @@ contract("VaccinePassport", (accounts) => {
     const newPassportId = tx.logs[0].args["tokenId"];
     // This is returned as a string.
     const initials = await vaccinePassportInstance.getInitials(newPassportId);
-    // This is returned as a big number (BN, from bignumber.js).
+
+    // These are returned as a big number (BN, from bignumber.js).
     const doseCount = await vaccinePassportInstance.getDoseCount(newPassportId);
+    const vaccineLot = await vaccinePassportInstance.getDoseLot(
+      newPassportId,
+      0 // <--- First dose, index starts at zero.
+    );
 
     // Assertions.
     // Expected event name.
@@ -69,6 +75,12 @@ contract("VaccinePassport", (accounts) => {
       doseCount.toNumber(),
       expectedDoseCount,
       "unexpected dose count"
+    );
+
+    assert.strictEqual(
+      vaccineLot.toNumber(),
+      expectedVaccineLot,
+      "unexpected vaccine lot"
     );
   });
 });
