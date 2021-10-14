@@ -83,6 +83,135 @@ contract("VaccinePassport", (accounts) => {
       "unexpected vaccine lot"
     );
   });
+
+  it("retrieve NFTs associated", async () => {
+    // Test setup.
+    const vaccinePassportInstance = await VaccinePassport.deployed();
+
+    const expectedInitials = "RCE414";
+    const expectedVaccineLot = 10;
+
+    const contractOwner = accounts[0];
+    const issuer = accounts[1];
+    const holder = accounts[2];
+
+    await vaccinePassportInstance.registerIssuer(issuer, {
+      from: contractOwner,
+    });
+
+    // Issue new vaccine passport/certificate.
+    const tx = await vaccinePassportInstance.issueNewVaccinePassport(
+      holder,
+      expectedInitials,
+      123, // date of birth as UNIX timestamp
+      "photoUrl",
+      1, // index of the vendor
+      expectedVaccineLot,
+      {
+        from: issuer,
+      }
+    );
+
+    // Collect results.
+    const newPassportId = tx.logs[0].args["tokenId"];
+
+    // Methods under test.
+    // number of passports the address has
+    const nftCountBN = await vaccinePassportInstance.balanceOf(holder);
+    const nftCount = nftCountBN.toNumber();
+    const lastNftIndex = nftCount - 1;
+
+    // Get last passport.
+    const tokenId = await vaccinePassportInstance.tokenOfOwnerByIndex(
+      holder,
+      lastNftIndex
+    );
+
+    // Assertions.
+    // Expected event name.
+    assert.ok(nftCount > 0, "expected at least one passport for Holder");
+
+    // Verify actual passport.
+    assert.strictEqual(
+      tokenId.toNumber(),
+      newPassportId.toNumber(),
+      "passport retrieved not the same as the issued"
+    );
+  });
+
+  it("register new dose", async () => {
+    // Test setup.
+    const vaccinePassportInstance = await VaccinePassport.deployed();
+
+    const expectedInitials = "RCE414";
+    const expectedVaccineLot = 10;
+    const expectedVendor = 2; // Moderna
+
+    const contractOwner = accounts[0];
+    const issuer = accounts[1];
+    const holder = accounts[2];
+
+    await vaccinePassportInstance.registerIssuer(issuer, {
+      from: contractOwner,
+    });
+
+    // Issue new vaccine passport/certificate.
+    const tx = await vaccinePassportInstance.issueNewVaccinePassport(
+      holder,
+      expectedInitials,
+      123, // date of birth as UNIX timestamp
+      "photoUrl",
+      1, // index of the vendor
+      expectedVaccineLot,
+      {
+        from: issuer,
+      }
+    );
+
+    const newPassportId = tx.logs[0].args["tokenId"];
+
+    // Method under test.
+    await vaccinePassportInstance.registerDose(
+      newPassportId,
+      expectedVendor,
+      expectedVaccineLot + 10,
+      {
+        from: issuer,
+      }
+    );
+
+    // Collect results.
+    const doseCountBN = await vaccinePassportInstance.getDoseCount(
+      newPassportId
+    );
+    const doseCount = doseCountBN.toNumber();
+    const doseIndex = doseCount - 1;
+    const doseTimeOfIssueBN = await vaccinePassportInstance.getDoseTimeOfIssue(
+      newPassportId,
+      doseIndex
+    );
+    const doseVendorName = await vaccinePassportInstance.getDoseVendorName(
+      newPassportId,
+      doseIndex
+    );
+    const doseLotBN = await vaccinePassportInstance.getDoseLot(
+      newPassportId,
+      doseIndex
+    );
+
+    // Assertions.
+    assert.strictEqual(doseCount, 2, "exactly 2 doses");
+    assert.ok(
+      doseTimeOfIssueBN.toNumber() > 1134238387,
+      "appropriate timestamp"
+    );
+    assert.strictEqual(doseVendorName, "Moderna", "unexpected vendor for dose");
+    assert.strictEqual(
+      doseLotBN.toNumber(),
+      expectedVaccineLot + 10,
+      "correct lot"
+    );
+  });
 });
 
 // Sample transaction return when invoking "issueNewVaccinePassport":

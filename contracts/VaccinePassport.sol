@@ -14,6 +14,18 @@ contract VaccinePassport is
     ERC721Burnable,
     ReentrancyGuard
 {
+    event VaccinePassportIssued(
+        address indexed issuer,
+        address indexed holder,
+        uint256 passportId
+    );
+
+    event VaccinePassportDoseRegistered(
+        uint256 passportId,
+        uint256 vendor,
+        uint256 lot
+    );
+
     string[] private vaccineVendors = [
         "Pfizer",
         "Janssen",
@@ -46,7 +58,7 @@ contract VaccinePassport is
     // Set of authorized issuers that can mint new vaccionation passport tokens
     mapping(address => bool) private authorizedIssuers;
 
-    constructor() ERC721("Vaccine Passport", "COVP") {
+    constructor() ERC721("COVID-19 Vaccine Passport", "COVP") {
         vaccinePassportId = 0;
     }
 
@@ -103,14 +115,14 @@ contract VaccinePassport is
             ];
     }
 
-    function getDoseLot(uint256 tokenId, uint256 doseNumber)
+    function getDoseLot(uint256 tokenId, uint256 doseIndex)
         public
         view
         returns (uint256)
     {
-        require(doseNumber < holderDosesByVaccinePassportId[tokenId].length);
+        require(doseIndex < holderDosesByVaccinePassportId[tokenId].length);
 
-        return holderDosesByVaccinePassportId[tokenId][doseNumber].lot;
+        return holderDosesByVaccinePassportId[tokenId][doseIndex].lot;
     }
 
     function isAuthorizedIssuer(address issuer) public view returns (bool) {
@@ -145,6 +157,9 @@ contract VaccinePassport is
         );
 
         super._mint(holder, vaccinePassportId);
+
+        emit VaccinePassportIssued(msg.sender, holder, vaccinePassportId);
+        emit VaccinePassportDoseRegistered(vaccinePassportId, vendor, lot);
     }
 
     function registerDose(
@@ -157,6 +172,8 @@ contract VaccinePassport is
         holderDosesByVaccinePassportId[tokenId].push(
             DoseInfo({timeOfIssue: block.timestamp, vendor: vendor, lot: lot})
         );
+
+        emit VaccinePassportDoseRegistered(vaccinePassportId, vendor, lot);
     }
 
     /**
