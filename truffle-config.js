@@ -12,9 +12,10 @@ module.exports = {
   // see <http://truffleframework.com/docs/advanced/configuration>
   // for more details on how to specify configuration options!
   //
+
   compilers: {
     solc: {
-      version: "^0.8.0",
+      version: "^0.8.0", // Note: Last compilation: 0.8.9+commit.e5eed63a.Emscripten.clang
     },
   },
   networks: {
