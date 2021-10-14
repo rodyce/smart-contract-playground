@@ -118,8 +118,6 @@ contract VaccinePassport is
     }
 
     function registerIssuer(address newIssuer) public onlyOwner {
-        require(!isAuthorizedIssuer(newIssuer));
-
         authorizedIssuers[newIssuer] = true;
     }
 
@@ -130,7 +128,7 @@ contract VaccinePassport is
         string memory photoUrl,
         uint256 vendor,
         uint256 lot
-    ) public nonReentrant returns (uint256) {
+    ) public nonReentrant {
         require(isAuthorizedIssuer(msg.sender));
 
         vaccinePassportId += 1;
@@ -147,8 +145,6 @@ contract VaccinePassport is
         );
 
         super._mint(holder, vaccinePassportId);
-
-        return vaccinePassportId;
     }
 
     function registerDose(
