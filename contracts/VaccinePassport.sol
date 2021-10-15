@@ -133,6 +133,10 @@ contract VaccinePassport is
         authorizedIssuers[newIssuer] = true;
     }
 
+    function unregisterIssuer(address oldIssuer) public onlyOwner {
+        authorizedIssuers[oldIssuer] = false;
+    }
+
     function issueNewVaccinePassport(
         address holder,
         string memory initials,

@@ -18,6 +18,10 @@ module.exports = {
       version: "^0.8.0", // Note: Last compilation: 0.8.9+commit.e5eed63a.Emscripten.clang
     },
   },
+  plugins: ["truffle-plugin-verify"],
+  api_keys: {
+    etherscan: process.env.ETHERSCAN_API_KEY,
+  },
   networks: {
     development: {
       host: "127.0.0.1",
@@ -37,7 +41,17 @@ module.exports = {
         );
       },
       network_id: 3,
-      gas: 4000000, //make sure this gas allocation isn't over 4M, which is the max
+      gas: 8000000, // Some contracts might require more than 4M.
+    },
+    rinkeby: {
+      provider: function () {
+        return new HDWalletProvider(
+          MNEMONIC,
+          `https://rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`
+        );
+      },
+      network_id: 4,
+      gas: 8000000, // Some contracts might require more than 4M.
     },
   },
   //
